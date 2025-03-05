@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getLatestPrices } from '../models/priceModel';
+import { getLatestPrices } from '../models/priceModels';
 
 // Get the latest prices
 export const getPrices = async (req: Request, res: Response) => {
