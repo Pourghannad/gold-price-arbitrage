@@ -1,6 +1,6 @@
 import express from 'express';
 import priceRoutes from './routes/priceRoutes';
-import { createTable } from './models/priceModel';
+import { createTable } from './models/priceModels';
 import { fetchAllPrices } from './services/crawlerService';
 import cron from 'node-cron';
 

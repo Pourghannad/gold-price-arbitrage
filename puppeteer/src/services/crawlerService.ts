@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { insertPrice } from '../models/priceModel';
+import { insertPrice } from '../models/priceModels';
 
 // Websites and their CSS selectors
 const websites = [
