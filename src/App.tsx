@@ -1,12 +1,7 @@
-import './App.css'
+import Table from "./components/Table/Table";
 
 function App() {
-
-  return (
-    <>
-      INIT
-    </>
-  )
+  return <Table />;
 }
 
-export default App
+export default App;
