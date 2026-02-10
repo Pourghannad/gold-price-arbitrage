@@ -39,6 +39,9 @@ const Table = () => {
       {
         accessorKey: 'priceIRT',
         header: 'قیمت به تومان',
+        accessorFn(originalRow) {
+          return originalRow.priceIRT.toLocaleString('fa-IR')
+        },
         size: 200,
       },
       {
@@ -57,7 +60,8 @@ const Table = () => {
 
   const table = useMaterialReactTable({
     columns,
-    data, 
+    data,
+    columnResizeDirection: 'rtl',
   });
 
   return <MaterialReactTable table={table} />;

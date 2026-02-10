@@ -1,25 +1,25 @@
 @font-face {
   font-family: Shabnam;
-  src: url('@Public/fonts/Shabnam-FD.eot');
-  src: url('Shabnam.eot?#iefix') format('embedded-opentype'),
-       url('Shabnam.woff2') format('woff2'),
-       url('Shabnam.woff') format('woff'),
-       url('Shabnam.ttf') format('truetype');
+  src: url('./fonts/Shabnam-FD.eot');
+  src: url('./fonts/Shabnam-FD.eot?#iefix') format('embedded-opentype'),
+       url('./fonts/Shabnam-FD.woff2') format('woff2'),
+       url('./fonts/Shabnam-FD.woff') format('woff'),
+       url('./fonts/Shabnam-FD.ttf') format('truetype');
   font-weight: normal;
 }
 
 @font-face {
   font-family: Shabnam;
-  src: url('Shabnam-Bold.eot');
-  src: url('Shabnam-Bold.eot?#iefix') format('embedded-opentype'),
-       url('Shabnam-Bold.woff2') format('woff2'),
-       url('Shabnam-Bold.woff') format('woff'),
-       url('Shabnam-Bold.ttf') format('truetype');
-  font-weight: bold;
+  src: url('./fonts/Shabnam-Bold-FD.eot');
+  src: url('./fonts/Shabnam-Bold-FD.eot?#iefix') format('embedded-opentype'),
+       url('./fonts/Shabnam-Bold-FD.woff2') format('woff2'),
+       url('./fonts/Shabnam-Bold-FD.woff') format('woff'),
+       url('./fonts/Shabnam-Bold-FD.ttf') format('truetype');
+  font-weight: 600;
 }
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -40,4 +40,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
   justify-content: center;
+}
+
+.MuiTableCell-body, .MuiTypography-root, .Mui-TableHeadCell-Content-Wrapper {
+ font-family: "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
+}
+.Mui-TableHeadCell-Content-Wrapper {
+  font-weight: 600;
 }
