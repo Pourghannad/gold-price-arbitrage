@@ -57,7 +57,7 @@ const Table = () => {
     ],
     [],
   );
-
+  
   const table = useMaterialReactTable({
     columns,
     data,
