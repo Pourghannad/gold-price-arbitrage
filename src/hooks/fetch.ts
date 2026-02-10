@@ -10,12 +10,12 @@ export function useFetch({
   retry = 2,
   url = "",
   retryDelay = 1_000,
-}: UseFetchOptions = {}): unknown {
+}: UseFetchOptions = {}): any {
   const controllerRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
   const [{ data, loading, error }, setState] = useState<{
-    data: unknown | null;
+    data: any | null;
     loading: boolean;
     error: Error | null;
   }>({ data: null, loading: true, error: null });
@@ -34,10 +34,10 @@ export function useFetch({
 
         if (!res.ok) throw new Error(`HTTP${res.status}`);
 
-        const json: { data: unknown } = await res.json();
+        const json: { data: any } = await res.json();
         if (!mountedRef.current) return;
 
-        setState({ data: json.data, loading: false, error: null });
+        setState({ data: json, loading: false, error: null });
         return;
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -53,6 +53,7 @@ export function useFetch({
     }
   }, [url, retry, retryDelay]);
 
+  
   useEffect(() => {
     mountedRef.current = true;
     doFetch();

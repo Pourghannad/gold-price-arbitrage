@@ -4,27 +4,10 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
+import { IGoldPrice, ITable } from './types';
 
-type GoldPrice = {
-  website: string;
-  name: string;
-  priceIRT: number;
-  commission: number;
-  last_modified: number;
-};
-
-const data: GoldPrice[] = [
-  {
-    website: 'https://wallgold.ir/',
-    name: 'وال گلد',
-    priceIRT: 6658000,
-    commission: 0.1,
-    last_modified: 1741697612416,
-  },
-];
-
-const Table = () => {
-  const columns = useMemo<MRT_ColumnDef<GoldPrice>[]>(
+const Table = ({data}: ITable) => {
+  const columns = useMemo<MRT_ColumnDef<IGoldPrice>[]>(
     () => [
       {
         accessorKey: 'website',
@@ -57,7 +40,7 @@ const Table = () => {
     ],
     [],
   );
-  
+
   const table = useMaterialReactTable({
     columns,
     data,
