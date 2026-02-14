@@ -28,7 +28,7 @@ function App() {
           {
             website: "https://milli.gold/",
             name: "میلی",
-            priceIRT: dataMili?.data?.price18,
+            priceIRT: dataMili?.price * 100,
             commission: 0.1,
             last_modified: new Date().getTime(),
           },
