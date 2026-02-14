@@ -5,6 +5,7 @@ import {
   type MRT_ColumnDef,
 } from 'material-react-table';
 import { IGoldPrice, ITable } from './types';
+import { englishToPersianDigits } from '../../utils/stringHelper';
 
 const Table = ({data}: ITable) => {
   const columns = useMemo<MRT_ColumnDef<IGoldPrice>[]>(
@@ -23,7 +24,7 @@ const Table = ({data}: ITable) => {
         accessorKey: 'priceIRT',
         header: 'قیمت به تومان',
         accessorFn(originalRow) {
-          return originalRow.priceIRT.toLocaleString('fa-IR')
+          return englishToPersianDigits(originalRow?.priceIRT)
         },
         size: 200,
       },

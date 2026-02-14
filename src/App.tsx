@@ -1,26 +1,34 @@
-import { useEffect } from "react";
 import Table from "./components/Table/Table";
 import { useFetch } from "./hooks/fetch";
 
 function App() {
-  const { data, loading } = useFetch({
+  const { data: dataWallGold, wallGoldLoading } = useFetch({
     url: "https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy",
-    retry: 0,
+    retry: 2,
   });
 
-  useEffect(() => {
-    console.log("asd", data);
-  }, [data]);
+  const { data: dataMili, miliLoading } = useFetch({
+    url: "https://azard.net/gold",
+    retry: 2,
+  });
+
 
   return (
     <section>
-      {loading ? 'loading.....' : 
+      {wallGoldLoading || miliLoading ? 'loading.....' : 
       <Table
         data={[
           {
             website: "https://wallgold.ir/",
             name: "وال گلد",
-            priceIRT: data.result.price,
+            priceIRT: dataWallGold?.result?.price,
+            commission: 0.1,
+            last_modified: new Date().getTime(),
+          },
+          {
+            website: "https://milli.gold/",
+            name: "میلی",
+            priceIRT: dataMili?.data?.price18,
             commission: 0.1,
             last_modified: new Date().getTime(),
           },
@@ -32,3 +40,9 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
