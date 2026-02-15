@@ -16,11 +16,6 @@ const Table = ({data}: ITable) => {
         size: 150,
       },
       {
-        accessorKey: 'name',
-        header: 'نام وب سایت',
-        size: 150,
-      },
-      {
         accessorKey: 'priceIRT',
         header: 'قیمت به تومان',
         accessorFn(originalRow) {

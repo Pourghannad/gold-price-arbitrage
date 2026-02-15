@@ -20,14 +20,12 @@ function App() {
         data={[
           {
             website: "https://wallgold.ir/",
-            name: "وال گلد",
             priceIRT: dataWallGold?.result?.price,
             commission: 0.1,
             last_modified: new Date().getTime(),
           },
           {
             website: "https://milli.gold/",
-            name: "میلی",
             priceIRT: dataMili?.price * 100,
             commission: 0.1,
             last_modified: new Date().getTime(),
