@@ -42,13 +42,9 @@ body {
   justify-content: center;
 }
 
-.MuiTableCell-body, .MuiTypography-root, .Mui-TableHeadCell-Content-Wrapper {
+.MuiTableCell-body, .MuiTypography-root, .Mui-TableHeadCell-Content-Wrapper, .MuiPopper-root {
  font-family: "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
 }
 .Mui-TableHeadCell-Content-Wrapper {
   font-weight: 600;
-}
-.center {
-  display: flex;
-  justify-content: center;
 }

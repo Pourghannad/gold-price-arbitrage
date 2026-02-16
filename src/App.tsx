@@ -9,7 +9,7 @@ function App() {
 
   return (
     <section>
-      {loading ?  'loading.....' : 
+      {loading ?  'در حال بارگذاری ....' : 
       <Table
         data={data}
       />
