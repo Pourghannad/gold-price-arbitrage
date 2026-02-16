@@ -11,7 +11,7 @@ function App() {
   return (
     <section>
       <h1 className="title">مقایسه قیمت طلا ۱۸ عیار</h1>
-      {loading ? "در حال بارگذاری ...." : <Table data={data} />}
+      {loading ? "... در حال بارگذاری " : <Table data={data} />}
     </section>
   );
 }
