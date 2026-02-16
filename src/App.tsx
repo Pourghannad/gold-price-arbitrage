@@ -5,11 +5,12 @@ function App() {
   const { data, loading } = useFetch({
     url: "https://azard.net/gold/",
     retry: 0,
-    interval: 90000
+    interval: 305000
   });
 
   return (
     <section>
+      <h1 className="title">مقایسه قیمت طلا ۱۸ عیار</h1>
       {loading ? "در حال بارگذاری ...." : <Table data={data} />}
     </section>
   );

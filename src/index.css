@@ -1,25 +1,28 @@
 @font-face {
   font-family: Shabnam;
-  src: url('./fonts/Shabnam-FD.eot');
-  src: url('./fonts/Shabnam-FD.eot?#iefix') format('embedded-opentype'),
-       url('./fonts/Shabnam-FD.woff2') format('woff2'),
-       url('./fonts/Shabnam-FD.woff') format('woff'),
-       url('./fonts/Shabnam-FD.ttf') format('truetype');
+  src: url("./fonts/Shabnam-FD.eot");
+  src:
+    url("./fonts/Shabnam-FD.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Shabnam-FD.woff2") format("woff2"),
+    url("./fonts/Shabnam-FD.woff") format("woff"),
+    url("./fonts/Shabnam-FD.ttf") format("truetype");
   font-weight: normal;
 }
 
 @font-face {
   font-family: Shabnam;
-  src: url('./fonts/Shabnam-Bold-FD.eot');
-  src: url('./fonts/Shabnam-Bold-FD.eot?#iefix') format('embedded-opentype'),
-       url('./fonts/Shabnam-Bold-FD.woff2') format('woff2'),
-       url('./fonts/Shabnam-Bold-FD.woff') format('woff'),
-       url('./fonts/Shabnam-Bold-FD.ttf') format('truetype');
+  src: url("./fonts/Shabnam-Bold-FD.eot");
+  src:
+    url("./fonts/Shabnam-Bold-FD.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Shabnam-Bold-FD.woff2") format("woff2"),
+    url("./fonts/Shabnam-Bold-FD.woff") format("woff"),
+    url("./fonts/Shabnam-Bold-FD.ttf") format("truetype");
   font-weight: 600;
 }
 
 :root {
-  font-family: "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family:
+    "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -42,9 +45,23 @@ body {
   justify-content: center;
 }
 
-.MuiTableCell-body, .MuiTypography-root, .Mui-TableHeadCell-Content-Wrapper, .MuiPopper-root {
- font-family: "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important; 
+.MuiTableCell-body,
+.MuiTypography-root,
+.Mui-TableHeadCell-Content-Wrapper {
+  font-family:
+    "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important;
 }
 .Mui-TableHeadCell-Content-Wrapper {
   font-weight: 600;
+}
+
+.title {
+  position: absolute;
+  top: 40px;
+  text-align: center;
+  right: 0;
+  left: 0;
+  font-weight: bold;
+  font-size: 27px;
+  color: #d8bf3e;
 }
