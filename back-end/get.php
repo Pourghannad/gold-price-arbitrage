@@ -17,7 +17,8 @@ $apis = [
     'technogold.gold' => 'https://api2.technogold.gold/customer/tradeables/only-price/1',
     'zarpaad.com' => 'https://app.zarpaad.com/api/getRate',
     // 'melligold.com' => 'https://melligold.com/api/v1/exchange/buy-sell-price/?symbol=XAU18&format=json',
-    'zarinex.io' => 'https://api.zarinex.io/wallets/v1/prices'
+    'zarinex.io' => 'https://api.zarinex.io/wallets/v1/prices',
+    'daric.gold' => 'https://apisc.daric.gold/loan/api/v1/User/Collateral/GetGoldlPrice'
 ];
 
 // --- CORS: restrict to your frontend domain(s) ---
@@ -154,12 +155,14 @@ foreach ($handles as $source => $ch) {
         $price = isset($data['results']['price']) ? filter_var($data['results']['price'], FILTER_VALIDATE_INT) : false;
     } elseif ($source === 'zarpaad.com') {
         $price = isset($data['data']['gold']['buy_price']) ? filter_var($data['data']['gold']['buy_price'], FILTER_VALIDATE_INT) : false;
-    } 
+    }
     // elseif ($source === 'melligold.com') {
     //     $price = isset($data['data']['price_buy']) ? filter_var($data['data']['price_buy'], FILTER_VALIDATE_INT) : false;
     // }
     elseif ($source === 'zarinex.io') {
         $price = isset($data['data']['G18']['buy']['price']) ? filter_var($data['data']['G18']['buy']['price'], FILTER_VALIDATE_INT) : false;
+    } elseif ($source === 'daric.gold') {
+        $price = isset($data['Data']['BestBuyPrice']) ? filter_var($data['Data']['BestBuyPrice'], FILTER_VALIDATE_INT) : false;
     }
 
     // Validate price

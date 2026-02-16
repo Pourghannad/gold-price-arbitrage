@@ -17,9 +17,9 @@ const Table = ({data}: ITable) => {
       },
       {
         accessorKey: 'price',
-        header: 'قیمت به تومان',
+        header: 'قیمت خرید به تومان',
         accessorFn(originalRow) {
-          return englishToPersianDigits(originalRow?.price)
+          return <span className='center'>{englishToPersianDigits(originalRow?.price)}</span>
         },
         size: 200,
       },
@@ -35,7 +35,14 @@ const Table = ({data}: ITable) => {
   const table = useMaterialReactTable({
     columns,
     data,
-    columnResizeDirection: 'rtl',
+    columnResizeDirection: "rtl",
+    enablePagination: false,
+    enableBottomToolbar: false,
+    enableGlobalFilter: false,
+    enableFilters: false,
+    enableColumnActions: false,
+    enableColumnFilters: false,
+    enableColumnFilterModes: false,
   });
 
   return <MaterialReactTable table={table} />;

@@ -48,3 +48,7 @@ body {
 .Mui-TableHeadCell-Content-Wrapper {
   font-weight: 600;
 }
+.center {
+  display: flex;
+  justify-content: center;
+}
