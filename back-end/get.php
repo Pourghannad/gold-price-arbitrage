@@ -15,7 +15,8 @@ define('DB_PASS', getenv(name: 'DB_PASS') ?: '***');
 
 $apis = [
     'milli.gold' => 'https://milli.gold/api/v1/public/milli-price/external',
-    'talasea.ir' => 'https://api.talasea.ir/api/market/getGoldPrice'
+    'talasea.ir' => 'https://api.talasea.ir/api/market/getGoldPrice',
+    'wallgold.ir' => 'https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy'
 ];
 
 $results = [];
@@ -71,75 +72,98 @@ try {
 $results = [];
 
 foreach ($apis as $source => $url) {
-    // Fetch with cURL (same secure settings as before)
+    // Initialize result structure
+    $result = [
+        'source'   => $source,
+        'success'  => false,
+        'price'    => null,
+        'api_date' => null,
+        'error'    => null
+    ];
+
+    // --- cURL request with security best practices ---
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'golde/1.0');
+    curl_setopt($ch, CURLOPT_USERAGENT, '****');
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    // No explicit curl_close needed
-    
-    $result = [
-        'source' => $source,
-        'success' => false,
-        'price' => null,
-        'api_date' => null,
-        'error' => null
-    ];
-    
+    // No explicit curl_close needed – PHP cleans up
+
     if ($response === false || $httpCode !== 200) {
         $result['error'] = "HTTP $httpCode, cURL error: $curlError";
         error_log("$source API error: " . $result['error']);
-    } else {
-        $data = json_decode($response, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $result['error'] = 'Invalid JSON response';
-            error_log("$source invalid JSON: " . json_last_error_msg());
-        } else {
-            // Extract price based on source
-            if ($source === 'milli.gold') {
-                $price = isset($data['data']['price18']) ? filter_var($data['data']['price18'], FILTER_VALIDATE_INT) : false;
-                $apiDate = $data['data']['date'] ?? null;
-            } else { // talasea.ir
-                // Adjust this path according to the actual API response
-                $price = isset($data['data']['price']) ? filter_var($data['data']['price'], FILTER_VALIDATE_INT) : false;
-                $apiDate = $data['data']['date'] ?? null; // adjust if date field differs
-            }
-            
-            if ($price === false || $price < 0) {
-                $result['error'] = 'Invalid price value';
-                error_log("$source invalid price");
-            } else {
-                $result['success'] = true;
-                $result['price'] = $price;
-                $result['api_date'] = $apiDate;
-                
-                // --- Store in database (optional) ---
-                // If you want to store both prices, you need a table structure that can hold multiple entries.
-                // For simplicity, we'll keep the existing table and insert a row for each source.
-                // You might want to add a 'source' column to the table.
-                try {
-                    // Assuming you've added a 'source' column to gold_prices
-                    $stmt = $pdo->prepare('INSERT INTO gold_prices (source, price, api_date) VALUES (:source, :price, :api_date)');
-                    $stmt->execute([
-                        'source' => $source,
-                        'price' => $price,
-                        'api_date' => $apiDate
-                    ]);
-                } catch (PDOException $e) {
-                    error_log("Database insert failed for $source: " . $e->getMessage());
-                    // Don't fail the whole response if storage fails
-                }
+        $results[] = $result;
+        continue;
+    }
+
+    // Decode JSON
+    $data = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $result['error'] = 'Invalid JSON response';
+        error_log("$source invalid JSON: " . json_last_error_msg());
+        $results[] = $result;
+        continue;
+    }
+
+    // --- Extract price and date based on source ---
+    $price = false;
+    $apiDate = null;
+
+    if ($source === 'milli.gold') {
+        // Structure: { "data": { "price18": 189120, "date": "2026-02-14T14:37:01" } }
+        $getPrice = isset($data['data']['price18']) ? filter_var($data['data']['price18'], FILTER_VALIDATE_INT) : false;
+        $price = $getPrice * 100;
+        $apiDate = $data['data']['date'] ?? null;
+    } elseif ($source === 'talasea.ir') {
+        // Expected structure: { "data": { "price": 187500, "date": "..." } }
+        $getPrice = isset($data['price']) ? filter_var($data['price'], FILTER_VALIDATE_INT) : false;
+        $price = $getPrice * 1000;
+        $apiDate = null;
+    } elseif ($source === 'wallgold.ir') {
+        // Structure: { "result": { "price": "18966000", "currentTime": "2026-02-15T07:52:41.696851Z" } }
+        $price = isset($data['result']['price']) ? filter_var($data['result']['price'], FILTER_VALIDATE_INT) : false;
+        // Convert ISO 8601 to MySQL datetime format (Y-m-d H:i:s)
+        if (isset($data['result']['currentTime'])) {
+            $timestamp = strtotime($data['result']['currentTime']);
+            if ($timestamp !== false) {
+                $apiDate = date('Y-m-d H:i:s', $timestamp);
             }
         }
     }
-    
+
+    // Validate price
+    if ($price === false || $price < 0) {
+        $result['error'] = 'Invalid price value';
+        error_log("$source invalid price");
+        $results[] = $result;
+        continue;
+    }
+
+    // Success – populate result
+    $result['success'] = true;
+    $result['price'] = $price;
+    $result['api_date'] = $apiDate;
+
+    // --- Store in database (optional) ---
+    // Requires a 'source' column in the gold_prices table.
+    try {
+        $stmt = $pdo->prepare('INSERT INTO gold_prices (source, price, api_date) VALUES (:source, :price, :api_date)');
+        $stmt->execute([
+            'source'   => $source,
+            'price'    => $price,
+            'api_date' => $apiDate
+        ]);
+    } catch (PDOException $e) {
+        error_log("Database insert failed for $source: " . $e->getMessage());
+        // Do not fail the response – just log
+    }
+
     $results[] = $result;
 }
 
