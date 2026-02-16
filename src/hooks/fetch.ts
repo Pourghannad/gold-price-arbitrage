@@ -1,18 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseFetchOptions {
+  /** Number of retry attempts on failure (default: 2) */
   retry?: number;
+  /** The URL to fetch (required) */
   url?: string;
+  /** Delay between retries in ms (default: 1000) */
   retryDelay?: number;
+  /** Polling interval in ms – if provided, will automatically refetch at this interval */
+  interval?: number;
 }
 
 export function useFetch({
   retry = 2,
   url = "",
   retryDelay = 1_000,
+  interval,
 }: UseFetchOptions = {}): any {
   const controllerRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
+  const intervalRef = useRef<number | null>(null);
 
   const [{ data, loading, error }, setState] = useState<{
     data: any | null;
@@ -21,6 +28,7 @@ export function useFetch({
   }>({ data: null, loading: true, error: null });
 
   const doFetch = useCallback(async () => {
+    // Abort any ongoing request
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -32,7 +40,7 @@ export function useFetch({
       try {
         const res = await fetch(url, { signal: controller.signal });
 
-        if (!res.ok) throw new Error(`HTTP${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json: { data: any } = await res.json();
         if (!mountedRef.current) return;
@@ -53,15 +61,38 @@ export function useFetch({
     }
   }, [url, retry, retryDelay]);
 
-  
+  // Set up the initial fetch and polling interval
   useEffect(() => {
     mountedRef.current = true;
-    doFetch();
+
+    // Clear any previous interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Only fetch and possibly poll if a URL is provided
+    if (url) {
+      // Initial fetch
+      doFetch();
+
+      // Set up polling if interval is provided and > 0
+      if (interval && interval > 0) {
+        intervalRef.current = window.setInterval(() => {
+          doFetch();
+        }, interval);
+      }
+    }
+
     return () => {
       mountedRef.current = false;
       controllerRef.current?.abort();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [doFetch]);
+  }, [doFetch, url, interval]); // Re-run when url or interval changes
 
   return {
     data,
