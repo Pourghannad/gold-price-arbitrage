@@ -5,9 +5,9 @@ ini_set('display_errors', 0);
 
 // --- Database configuration from environment ---
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: '****');
-define('DB_USER', getenv('DB_USER') ?: '****');
-define('DB_PASS', getenv(name: 'DB_PASS') ?: '****');
+define('DB_NAME', getenv('DB_NAME') ?: '');
+define('DB_USER', getenv('DB_USER') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 // --- Define APIs ---
 $apis = [
     'milli.gold' => 'https://milli.gold/api/v1/public/milli-price/external',
@@ -179,17 +179,39 @@ foreach ($handles as $source => $ch) {
     $result['price'] = $price;
     $result['api_date'] = $apiDate;
 
-    // --- Store in database (optional) ---
+    // --- CHECK LAST INSERT TIME FOR THIS SOURCE (5‑MINUTE THROTTLE) ---
+    $shouldInsert = true;
     try {
-        $stmt = $pdo->prepare('INSERT INTO gold_prices (source, price, api_date) VALUES (:source, :price, :api_date)');
-        $stmt->execute([
-            'source' => $source,
-            'price' => $price,
-            'api_date' => $apiDate
-        ]);
-    } catch (PDOException $e) {
-        error_log("Database insert failed for $source: " . $e->getMessage());
-        // Do not fail the response – just log
+        $stmtCheck = $pdo->prepare('SELECT MAX(fetched_at) as last_fetched FROM gold_prices WHERE source = :source');
+        $stmtCheck->execute(['source' => $source]);
+        $lastRow = $stmtCheck->fetch();
+        if ($lastRow && $lastRow['last_fetched'] !== null) {
+            $lastFetched = new DateTime($lastRow['last_fetched']);
+            $now = new DateTime();
+            $diffSeconds = $now->getTimestamp() - $lastFetched->getTimestamp();
+            if ($diffSeconds < 300) { // 5 minutes = 300 seconds
+                $shouldInsert = false;
+                error_log("Skipping insert for $source: last fetch {$diffSeconds}s ago (<5 min)");
+            }
+        }
+    } catch (Exception $e) {
+        // If check fails, we still attempt insert, but log the error
+        error_log("Failed to check last fetch for $source: " . $e->getMessage());
+    }
+
+    // --- Store in database only if allowed ---
+    if ($shouldInsert) {
+        try {
+            $stmt = $pdo->prepare('INSERT INTO gold_prices (source, price, api_date) VALUES (:source, :price, :api_date)');
+            $stmt->execute([
+                'source' => $source,
+                'price' => $price,
+                'api_date' => $apiDate
+            ]);
+        } catch (PDOException $e) {
+            error_log("Database insert failed for $source: " . $e->getMessage());
+            // Do not fail the response – just log
+        }
     }
 
     $results[] = $result;
