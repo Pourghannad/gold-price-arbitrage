@@ -8,13 +8,16 @@ define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: '****');
 define('DB_USER', getenv('DB_USER') ?: '****');
 define('DB_PASS', getenv(name: 'DB_PASS') ?: '****');
-
 // --- Define APIs ---
 $apis = [
-    'milli.gold'   => 'https://milli.gold/api/v1/public/milli-price/external',
-    'talasea.ir'   => 'https://api.talasea.ir/api/market/getGoldPrice',
-    'wallgold.ir'  => 'https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy',
+    'milli.gold' => 'https://milli.gold/api/v1/public/milli-price/external',
+    'talasea.ir' => 'https://api.talasea.ir/api/market/getGoldPrice',
+    'wallgold.ir' => 'https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy',
     'digikala.com' => 'https://api.digikala.com/non-inventory/v1/prices/',
+    'technogold.gold' => 'https://api2.technogold.gold/customer/tradeables/only-price/1',
+    'zarpaad.com' => 'https://app.zarpaad.com/api/getRate',
+    // 'melligold.com' => 'https://melligold.com/api/v1/exchange/buy-sell-price/?symbol=XAU18&format=json',
+    'zarinex.io' => 'https://api.zarinex.io/wallets/v1/prices'
 ];
 
 // --- CORS: restrict to your frontend domain(s) ---
@@ -76,9 +79,11 @@ foreach ($apis as $source => $url) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0');
-    
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36');
+
     curl_multi_add_handle($multiHandle, $ch);
     $handles[$source] = $ch;
 }
@@ -104,11 +109,11 @@ foreach ($handles as $source => $ch) {
     $curlError = curl_error($ch);
 
     $result = [
-        'source'   => $source,
-        'success'  => false,
-        'price'    => null,
+        'source' => $source,
+        'success' => false,
+        'price' => null,
         'api_date' => null,
-        'error'    => null
+        'error' => null
     ];
 
     if ($response === false || $httpCode !== 200) {
@@ -132,28 +137,29 @@ foreach ($handles as $source => $ch) {
 
     // --- Extract price and date based on source ---
     $price = false;
-    $apiDate = null;
+    $apiDate = date('Y-m-d H:i:s');
 
     if ($source === 'milli.gold') {
         $getPrice = isset($data['data']['price18']) ? filter_var($data['data']['price18'], FILTER_VALIDATE_INT) : false;
         $price = $getPrice * 100;
-        $apiDate = date('Y-m-d H:i:s');
     } elseif ($source === 'talasea.ir') {
         $getPrice = isset($data['price']) ? filter_var($data['price'], FILTER_VALIDATE_INT) : false;
         $price = $getPrice * 1000;
-        $apiDate = date('Y-m-d H:i:s');
     } elseif ($source === 'wallgold.ir') {
         $price = isset($data['result']['price']) ? filter_var($data['result']['price'], FILTER_VALIDATE_INT) : false;
-        if (isset($data['result']['currentTime'])) {
-            $timestamp = strtotime($data['result']['currentTime']);
-            if ($timestamp !== false) {
-                $apiDate = date('Y-m-d H:i:s', $timestamp);
-            }
-        }
     } elseif ($source === 'digikala.com') {
         $getPrice = isset($data['gold18']['price']) ? filter_var($data['gold18']['price'], FILTER_VALIDATE_INT) : false;
         $price = $getPrice * 100;
-        $apiDate = date('Y-m-d H:i:s');
+    } elseif ($source === 'technogold.gold') {
+        $price = isset($data['results']['price']) ? filter_var($data['results']['price'], FILTER_VALIDATE_INT) : false;
+    } elseif ($source === 'zarpaad.com') {
+        $price = isset($data['data']['gold']['buy_price']) ? filter_var($data['data']['gold']['buy_price'], FILTER_VALIDATE_INT) : false;
+    } 
+    // elseif ($source === 'melligold.com') {
+    //     $price = isset($data['data']['price_buy']) ? filter_var($data['data']['price_buy'], FILTER_VALIDATE_INT) : false;
+    // }
+    elseif ($source === 'zarinex.io') {
+        $price = isset($data['data']['G18']['buy']['price']) ? filter_var($data['data']['G18']['buy']['price'], FILTER_VALIDATE_INT) : false;
     }
 
     // Validate price
@@ -174,8 +180,8 @@ foreach ($handles as $source => $ch) {
     try {
         $stmt = $pdo->prepare('INSERT INTO gold_prices (source, price, api_date) VALUES (:source, :price, :api_date)');
         $stmt->execute([
-            'source'   => $source,
-            'price'    => $price,
+            'source' => $source,
+            'price' => $price,
             'api_date' => $apiDate
         ]);
     } catch (PDOException $e) {
