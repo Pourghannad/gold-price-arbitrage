@@ -16,7 +16,8 @@ define('DB_PASS', getenv(name: 'DB_PASS') ?: '****');
 $apis = [
     'milli.gold' => 'https://milli.gold/api/v1/public/milli-price/external',
     'talasea.ir' => 'https://api.talasea.ir/api/market/getGoldPrice',
-    'wallgold.ir' => 'https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy'
+    'wallgold.ir' => 'https://api.wallgold.ir/api/v1/price?symbol=GLD_18C_750TMN&side=buy',
+    'digikala.com' => 'https://api.digikala.com/non-inventory/v1/prices/'
 ];
 
 $results = [];
@@ -88,7 +89,7 @@ foreach ($apis as $source => $url) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, '***');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0');
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -128,13 +129,16 @@ foreach ($apis as $source => $url) {
     } elseif ($source === 'wallgold.ir') {
         // Structure: { "result": { "price": "18966000", "currentTime": "2026-02-15T07:52:41.696851Z" } }
         $price = isset($data['result']['price']) ? filter_var($data['result']['price'], FILTER_VALIDATE_INT) : false;
-        // Convert ISO 8601 to MySQL datetime format (Y-m-d H:i:s)
         if (isset($data['result']['currentTime'])) {
             $timestamp = strtotime($data['result']['currentTime']);
             if ($timestamp !== false) {
                 $apiDate = date('Y-m-d H:i:s', $timestamp);
             }
         }
+    } elseif ($source === 'digikala.com') {
+        $getPrice = isset($data['gold18']['price']) ? filter_var($data['gold18']['price'], FILTER_VALIDATE_INT) : false;
+        $price = $getPrice * 100;
+        $apiDate = date('Y-m-d H:i:s');
     }
 
     // Validate price
