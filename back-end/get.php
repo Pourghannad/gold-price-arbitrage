@@ -9,9 +9,9 @@ ini_set('display_errors', 0);
 
 // --- Database configuration from environment ---
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: '***');
-define('DB_USER', getenv('DB_USER') ?: '***');
-define('DB_PASS', getenv(name: 'DB_PASS') ?: '***');
+define('DB_NAME', getenv('DB_NAME') ?: '****');
+define('DB_USER', getenv('DB_USER') ?: '****');
+define('DB_PASS', getenv(name: 'DB_PASS') ?: '****');
 
 $apis = [
     'milli.gold' => 'https://milli.gold/api/v1/public/milli-price/external',
@@ -88,7 +88,7 @@ foreach ($apis as $source => $url) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, '****');
+    curl_setopt($ch, CURLOPT_USERAGENT, '***');
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -119,12 +119,12 @@ foreach ($apis as $source => $url) {
         // Structure: { "data": { "price18": 189120, "date": "2026-02-14T14:37:01" } }
         $getPrice = isset($data['data']['price18']) ? filter_var($data['data']['price18'], FILTER_VALIDATE_INT) : false;
         $price = $getPrice * 100;
-        $apiDate = $data['data']['date'] ?? null;
+        $apiDate = date('Y-m-d H:i:s');
     } elseif ($source === 'talasea.ir') {
         // Expected structure: { "data": { "price": 187500, "date": "..." } }
         $getPrice = isset($data['price']) ? filter_var($data['price'], FILTER_VALIDATE_INT) : false;
         $price = $getPrice * 1000;
-        $apiDate = null;
+        $apiDate = date('Y-m-d H:i:s');
     } elseif ($source === 'wallgold.ir') {
         // Structure: { "result": { "price": "18966000", "currentTime": "2026-02-15T07:52:41.696851Z" } }
         $price = isset($data['result']['price']) ? filter_var($data['result']['price'], FILTER_VALIDATE_INT) : false;

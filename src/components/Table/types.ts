@@ -1,8 +1,8 @@
 export type IGoldPrice = {
-  website: string;
-  priceIRT: number;
-  commission: number;
-  last_modified: number;
+  source: string;
+  success: boolean;
+  price: number;
+  api_date: string;
 };
 
 export interface ITable {

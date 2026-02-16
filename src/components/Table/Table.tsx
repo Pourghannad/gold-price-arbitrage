@@ -11,25 +11,20 @@ const Table = ({data}: ITable) => {
   const columns = useMemo<MRT_ColumnDef<IGoldPrice>[]>(
     () => [
       {
-        accessorKey: 'website',
+        accessorKey: 'source',
         header: 'آدرس وب‌سایت',
         size: 150,
       },
       {
-        accessorKey: 'priceIRT',
+        accessorKey: 'price',
         header: 'قیمت به تومان',
         accessorFn(originalRow) {
-          return englishToPersianDigits(originalRow?.priceIRT)
+          return englishToPersianDigits(originalRow?.price)
         },
         size: 200,
       },
       {
-        accessorKey: 'commission',
-        header: 'کمیسیون',
-        size: 150,
-      },
-      {
-        accessorKey: 'last_modified',
+        accessorKey: 'api_date',
         header: 'تاریخ آخرین تغییر',
         size: 150,
       },
