@@ -1,78 +1,95 @@
-import { useMemo } from "react";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-  type MRT_ColumnDef,
-} from "material-react-table";
-import { IGoldPrice, ITable } from "./types";
-import { englishToPersianDigits } from "../../utils/stringHelper";
-import { toJalali } from "../../utils/toJalali";
+import React, { useState, useMemo } from 'react';
 
-const Table = ({ data }: ITable) => {
-  const columns = useMemo<MRT_ColumnDef<IGoldPrice>[]>(
-    () => [
-      {
-        accessorKey: "source",
-        header: "وب‌سایت",
-        enableSorting: false,
-        size: 100,
-      },
-      {
-        accessorKey: "price",
-        header: "قیمت خرید به تومان",
-        accessorFn(originalRow) {
-          return <span className="center">{englishToPersianDigits(originalRow?.price)}</span>
-        },
-        size: 120,
-      },
-      {
-        accessorKey: "api_date",
-        header: "تاریخ آخرین تغییر",
-        accessorFn(originalRow) {
-          return toJalali(originalRow.api_date)
-        },
-        enableSorting: false,
-        size: 130,
-      },
-    ],
-    [],
+type TableData = Record<string, any>;
+interface Column<T extends TableData> {
+  key: keyof T;
+  header: string;
+  sortable?: boolean;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
+}
+
+interface TableProps<T extends TableData> {
+  data: T[];
+  columns: Column<T>[];
+  initialSortColumn?: keyof T;
+  initialSortDirection?: 'asc' | 'desc';
+}
+
+function Table<T extends TableData>({
+  data,
+  columns,
+  initialSortColumn,
+  initialSortDirection = 'desc',
+}: TableProps<T>) {
+  const [sortColumn, setSortColumn] = useState<keyof T | undefined>(initialSortColumn);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(initialSortDirection);
+
+  const sortedData = useMemo(() => {
+    if (!sortColumn) return data;
+
+    return [...data].sort((a, b) => {
+      const aVal = a[sortColumn];
+      const bVal = b[sortColumn];
+
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortColumn, sortDirection]);
+
+  const handleSort = (columnKey: keyof T) => {
+    if (sortColumn === columnKey) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection('asc');
+    }
+  };
+
+  return (
+    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+      <thead>
+        <tr>
+          {columns.map(col => (
+            <th
+              key={String(col.key)}
+              onClick={() => col.sortable && handleSort(col.key)}
+              style={{
+                padding: '8px',
+                textAlign: 'left',
+                borderBottom: '2px solid #ddd',
+                cursor: col.sortable ? 'pointer' : 'default',
+                userSelect: 'none',
+              }}
+            >
+              {col.header}
+              {sortColumn === col.key && (
+                <span style={{ marginLeft: '4px' }}>
+                  {sortDirection === 'asc' ? '▲' : '▼'}
+                </span>
+              )}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {sortedData.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {columns.map(col => (
+              <td
+                key={String(col.key)}
+                style={{ padding: '8px', borderBottom: '1px solid #ddd' }}
+              >
+                {col.render
+                  ? col.render(row[col.key], row)
+                  : row[col.key]}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
-
-  const table = useMaterialReactTable({
-    columns,
-    data,
-    columnResizeDirection: "rtl",
-    enablePagination: false,
-    enableBottomToolbar: false,
-    enableGlobalFilter: false,
-    enableFilters: false,
-    enableColumnActions: false,
-    enableColumnFilters: false,
-    enableDensityToggle: false,
-    enableTopToolbar: false,
-    enableColumnFilterModes: false,
-    enableFullScreenToggle: false,
-    enableHiding: false,
-    muiTableBodyRowProps: () => ({
-      sx: {
-        backgroundColor: "#000",
-      },
-    }),
-    muiTableHeadCellProps: () => ({
-      sx: {
-        backgroundColor: "#000",
-      },
-    }),
-    localization: {
-      language: "fa",
-      sortByColumnAsc: "",
-      sortByColumnDesc: "",
-      sortedByColumnAsc: "",
-      sortedByColumnDesc: "",
-    },
-  });
-
-  return <MaterialReactTable table={table} />;
-};
+}
 
 export default Table;

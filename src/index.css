@@ -45,18 +45,6 @@ body {
   justify-content: center;
 }
 
-.MuiTableCell-body,
-.MuiTypography-root,
-.Mui-TableHeadCell-Content-Wrapper {
-  font-family:
-    "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif !important;
-    color: #fff !important;
-}
-.Mui-TableHeadCell-Content-Wrapper {
-  font-weight: 600;
-  color: #fff;
-}
-
 .title {
   position: absolute;
   top: 40px;
@@ -71,12 +59,4 @@ body {
 .center {
   display: flex;
   justify-content: center;
-}
-
-.Mui-TableHeadCell-Content-Labels {
-  flex-direction: row-reverse !important;
-}
-
-.MuiTableSortLabel-icon path {
-  fill:#ffffff99 !important;  
 }
