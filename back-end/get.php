@@ -234,7 +234,7 @@ if ($count > 0) {
 
 // --- Return the array with average ---
 $output = [
-    'average' => $average,
+    'average' => round($average, 0),
     'results' => $results
 ];
 
