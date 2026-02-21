@@ -16,31 +16,36 @@ function App() {
       {loading ? (
         "... در حال بارگذاری "
       ) : (
-        <Table
-          initialSortColumn="price"
-          columns={[
-            {
-              key: "source",
-              header: "سایت",
-            },
-            {
-              key: "price",
-              header: "قیمت",
-              sortable: true,
-              render: (value) => {
-                return englishToPersianDigits(value as number);
+        <>
+          <h2>
+            میانگین قیمت: {englishToPersianDigits(data.average.toFixed(0))}
+          </h2>
+          <Table
+            initialSortColumn="price"
+            columns={[
+              {
+                key: "source",
+                header: "سایت",
               },
-            },
-            {
-              key: "api_date",
-              header: "تاریخ آخرین تغییر",
-              render: (value) => {
-                return toJalali(value as any);
+              {
+                key: "price",
+                header: "قیمت",
+                sortable: true,
+                render: (value) => {
+                  return englishToPersianDigits(value as number);
+                },
               },
-            },
-          ]}
-          data={data}
-        />
+              {
+                key: "api_date",
+                header: "تاریخ آخرین تغییر",
+                render: (value) => {
+                  return toJalali(value as any);
+                },
+              },
+            ]}
+            data={data?.results}
+          />
+        </>
       )}
     </section>
   );

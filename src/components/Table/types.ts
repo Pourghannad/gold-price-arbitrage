@@ -6,5 +6,5 @@ export type IGoldPrice = {
 };
 
 export interface ITable {
-    data: IGoldPrice[]
+  data: IGoldPrice[];
 }

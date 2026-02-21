@@ -16,7 +16,6 @@ $apis = [
     'digikala.com' => 'https://api.digikala.com/non-inventory/v1/prices/',
     'technogold.gold' => 'https://api2.technogold.gold/customer/tradeables/only-price/1',
     'zarpaad.com' => 'https://app.zarpaad.com/api/getRate',
-    // 'melligold.com' => 'https://melligold.com/api/v1/exchange/buy-sell-price/?symbol=XAU18&format=json',
     'zarinex.io' => 'https://api.zarinex.io/wallets/v1/prices',
     'daric.gold' => 'https://apisc.daric.gold/loan/api/v1/User/Collateral/GetGoldlPrice'
 ];
@@ -24,6 +23,7 @@ $apis = [
 // --- CORS: restrict to your frontend domain(s) ---
 $allowed_origins = [
     'https://azard.net',
+    'https://github.io',
     'http://localhost:3456'
 ];
 if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
@@ -104,6 +104,9 @@ do {
 
 // --- Process each response ---
 $results = [];
+$total = 0;
+$count = 0;
+
 foreach ($handles as $source => $ch) {
     $response = curl_multi_getcontent($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -122,7 +125,6 @@ foreach ($handles as $source => $ch) {
         error_log("$source API error: " . $result['error']);
         $results[] = $result;
         curl_multi_remove_handle($multiHandle, $ch);
-        // No curl_close – handle will be cleaned up by PHP
         continue;
     }
 
@@ -156,9 +158,7 @@ foreach ($handles as $source => $ch) {
     } elseif ($source === 'zarpaad.com') {
         $price = isset($data['data']['gold']['buy_price']) ? filter_var($data['data']['gold']['buy_price'], FILTER_VALIDATE_INT) : false;
     }
-    // elseif ($source === 'melligold.com') {
-    //     $price = isset($data['data']['price_buy']) ? filter_var($data['data']['price_buy'], FILTER_VALIDATE_INT) : false;
-    // }
+
     elseif ($source === 'zarinex.io') {
         $price = isset($data['data']['G18']['buy']['price']) ? filter_var($data['data']['G18']['buy']['price'], FILTER_VALIDATE_INT) : false;
     } elseif ($source === 'daric.gold') {
@@ -215,6 +215,8 @@ foreach ($handles as $source => $ch) {
     }
 
     $results[] = $result;
+    $total += $price;
+    $count++;
 
     // Detach handle from multi – PHP will clean up the handle itself
     curl_multi_remove_handle($multiHandle, $ch);
@@ -223,6 +225,18 @@ foreach ($handles as $source => $ch) {
 // Close the multi handle – this frees its resources
 curl_multi_close($multiHandle);
 
-// --- Return the array ---
+// --- Compute average price from successful responses ---
+if ($count > 0) {
+    $average = $total / $count;
+} else {
+    $average = null;
+}
+
+// --- Return the array with average ---
+$output = [
+    'average' => $average,
+    'results' => $results
+];
+
 http_response_code(200);
-echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+echo json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
