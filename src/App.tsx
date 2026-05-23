@@ -39,7 +39,7 @@ function App() {
                 key: "api_date",
                 header: "تاریخ آخرین تغییر",
                 render: (value) => {
-                  return toJalali(value as any);
+                  return toJalali(value ? value : `${new Date()}` as any);
                 },
               },
             ]}
