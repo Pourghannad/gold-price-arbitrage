@@ -1,0 +1,41 @@
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-FD.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shabnam';
+  src: url('/fonts/Shabnam-Bold-FD.woff2') format('woff2');
+  font-weight: bold;
+  font-display: swap;
+}
+
+:root {
+  font-family: 'Shabnam', Arial, sans-serif;
+  color: white;
+  background: #1f1f1f;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 16px;
+}
+
+.title {
+  text-align: center;
+  color: #d4af37;
+  margin-bottom: 32px;
+  font-size: 2rem;
+}
+
+.center {
+  text-align: center;
+}

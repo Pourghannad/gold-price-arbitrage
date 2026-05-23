@@ -6,7 +6,7 @@ export const englishToPersianDigits = (str?: string | number | null, isOmitDigit
   const localizedString = Number(str).toLocaleString('fa-ir');
 
   if (isOmitDigits) {
-    return localizedString.replaceAll('٬', '');
+    return localizedString.replace(/٬/g, '');
   }
 
   return localizedString;
