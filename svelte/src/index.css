@@ -1,0 +1,66 @@
+@font-face {
+  font-family: Shabnam;
+  src: url("./fonts/Shabnam-FD.eot");
+  src:
+    url("./fonts/Shabnam-FD.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Shabnam-FD.woff2") format("woff2"),
+    url("./fonts/Shabnam-FD.woff") format("woff"),
+    url("./fonts/Shabnam-FD.ttf") format("truetype");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: Shabnam;
+  src: url("./fonts/Shabnam-Bold-FD.eot");
+  src:
+    url("./fonts/Shabnam-Bold-FD.eot?#iefix") format("embedded-opentype"),
+    url("./fonts/Shabnam-Bold-FD.woff2") format("woff2"),
+    url("./fonts/Shabnam-Bold-FD.woff") format("woff"),
+    url("./fonts/Shabnam-Bold-FD.ttf") format("truetype");
+  font-weight: 600;
+}
+
+:root {
+  font-family:
+    "Shabnam", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  justify-content: center;
+}
+
+.title {
+  position: absolute;
+  top: 40px;
+  text-align: center;
+  right: 0;
+  left: 0;
+  font-weight: bold;
+  font-size: 27px;
+  color: #d8bf3e;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+h2 {
+  text-align: center;
+  margin-bottom: 24px;
+}
