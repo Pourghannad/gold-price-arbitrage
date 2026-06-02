@@ -27,7 +27,7 @@ function Table<T extends TableData>({
   const sortedData = useMemo(() => {
     if (!sortColumn) return data;
 
-    return [...data].sort((a, b) => {
+    return [...data || []]?.sort((a, b) => {
       const aVal = a[sortColumn];
       const bVal = b[sortColumn];
 

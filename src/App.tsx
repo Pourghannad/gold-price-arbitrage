@@ -18,7 +18,7 @@ function App() {
       ) : (
         <>
           <h2>
-            میانگین قیمت: {englishToPersianDigits(data.average.toFixed(0))}
+            میانگین قیمت: {englishToPersianDigits(data?.average?.toFixed(0) || '')}
           </h2>
           <Table
             initialSortColumn="price"
